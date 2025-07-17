@@ -2,12 +2,43 @@ import pandas as pd
 from docx import Document
 
 # 1. Validate Excel File
+import pandas as pd
+
 def validate_excel(file_path):
+    expected_sheets = {'Transactions', 'Customers', 'Products'}
+    expected_columns = {
+        'Transactions': {'transaction_id', 'customer_id', 'transaction_date', 'product_code', 'amount', 'payment_type'},
+        'Customers': {0}, 
+        'Products': {'product_code', 'product_name', 'category', 'unit_price'}
+    }
+
     xls = pd.ExcelFile(file_path)
-    expected = {'Transactions', 'Customers', 'Products'}
-    found = set(xls.sheet_names)
-    if not expected <= found:
-        raise ValueError(f"Missing sheets: {expected - found}")
+    found_sheets = set(xls.sheet_names)
+
+    # 1. Check sheets exist
+    missing_sheets = expected_sheets - found_sheets
+    if missing_sheets:
+        raise ValueError(f"Missing sheets: {missing_sheets}")
+
+    # 2. Check Transactions and Products columns
+    for sheet in ['Transactions', 'Products']:
+        df = pd.read_excel(xls, sheet_name=sheet)
+        missing_cols = expected_columns[sheet] - set(df.columns)
+        if missing_cols:
+            raise ValueError(f"Sheet '{sheet}' is missing columns: {missing_cols}")
+
+
+    df_customers_raw = pd.read_excel(xls, sheet_name='Customers', header=None)
+    if df_customers_raw.empty:
+        raise ValueError("Customers sheet is empty or incorrect format.")
+
+    # 4. Check minimum data presence for Transactions
+    df_trans = pd.read_excel(xls, sheet_name='Transactions')
+    if df_trans['customer_id'].isnull().any():
+        raise ValueError("Transactions sheet has missing customer_id values.")
+
+    return True
+
 
 # 2. Load Data
 def parse_customers(raw_df):

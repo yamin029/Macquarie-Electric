@@ -1,34 +1,215 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>Upload Excel</title>
+    <meta charset="utf-8" />
+    <title>Macquarie Electric – Upload Data</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Google Font -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Font Awesome (icon) -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+
     <style>
-      .info {
-        color: blue;
+      :root {
+        --brand: #005a9c;
+        --brand-light: #0078d4;
+        --success: #0f9d58;
+        --error: #d93025;
+        --info: #0078d4;
+        --bg: #f4f7fa;
       }
-      .success {
-        color: green;
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
       }
-      .error {
-        color: red;
+
+      body {
+        font-family: "Inter", sans-serif;
+        background: var(--bg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        color: #222;
+      }
+
+      .card {
+        background: #fff;
+        padding: 2.5rem 3rem;
+        border-radius: 12px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+        width: 100%;
+        max-width: 480px;
+        text-align: center;
+      }
+
+      .logo {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: var(--brand);
+        margin-bottom: 0.5rem;
+      }
+
+      h1 {
+        font-size: 1.75rem;
+        font-weight: 400;
+        margin-bottom: 1.5rem;
+      }
+
+      /* Flash messages */
+      .msg-list {
+        list-style: none;
+        margin-bottom: 1.5rem;
+      }
+
+      .msg {
+        padding: 0.75rem 1rem;
+        border-radius: 6px;
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+        animation: fadeIn 0.4s ease-in-out;
+      }
+
+      .msg.info {
+        background: #e7f3ff;
+        color: var(--info);
+      }
+      .msg.success {
+        background: #e6f7ee;
+        color: var(--success);
+      }
+      .msg.error {
+        background: #fce8e6;
+        color: var(--error);
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(-6px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* Form */
+      .upload-form input[type="file"] {
+        display: none;
+      }
+
+      .upload-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+        border: 2px dashed var(--brand-light);
+        background: #fff;
+        padding: 1.25rem 2rem;
+        border-radius: 8px;
+        color: var(--brand-light);
+        transition: all 0.25s ease;
+        font-weight: 500;
+      }
+
+      .upload-label:hover {
+        border-color: var(--brand);
+        color: var(--brand);
+        background: #f0f8ff;
+      }
+
+      .upload-btn {
+        margin-top: 1.25rem;
+        padding: 0.75rem 2.25rem;
+        border: none;
+        border-radius: 6px;
+        background: var(--brand);
+        color: #fff;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: background 0.25s ease;
+      }
+
+      .upload-btn:hover {
+        background: var(--brand-light);
+      }
+
+      /* Download link */
+      .dl-link {
+        display: inline-block;
+        margin-top: 1.5rem;
+        color: var(--brand);
+        font-weight: 600;
+        text-decoration: none;
+      }
+
+      .dl-link i {
+        margin-right: 0.35rem;
+      }
+
+      .dl-link:hover {
+        text-decoration: underline;
       }
     </style>
   </head>
+
   <body>
-    <h1>Upload Excel File</h1>
+    <div class="card">
+      <div class="logo">Macquarie Electric</div>
+      <h1>Upload Customer Data</h1>
 
-    {% with messages = get_flashed_messages(with_categories=true) %} {% if
-    messages %}
-    <ul>
-      {% for category, message in messages %}
-      <li class="{{ category }}">{{ message }}</li>
-      {% endfor %}
-    </ul>
-    {% endif %} {% endwith %}
+      <!-- Flash messages -->
+      {% with messages = get_flashed_messages(with_categories=true) %} {% if
+      messages %}
+      <ul class="msg-list">
+        {% for category, message in messages %}
+        <li class="msg {{ category }}">{{ message }}</li>
+        {% endfor %}
+      </ul>
+      {% endif %} {% endwith %}
 
-    <form method="post" enctype="multipart/form-data">
-      <input type="file" name="excel_file" required />
-      <input type="submit" value="Upload" />
-    </form>
+      <form method="post" enctype="multipart/form-data" class="upload-form">
+        <label for="file-input" class="upload-label">
+          <i class="fa-solid fa-cloud-arrow-up"></i>
+          <span id="file-name">Choose Excel file…</span>
+        </label>
+        <input
+          id="file-input"
+          type="file"
+          name="excel_file"
+          accept=".xlsx,.xls"
+          required
+        />
+
+        <button type="submit" class="upload-btn">
+          <i class="fa-solid fa-upload"></i> Upload & Process
+        </button>
+      </form>
+
+      <!-- Optional download link -->
+      {% if dl_url %}
+      <a class="dl-link" href="{{ dl_url }}">
+        <i class="fa-solid fa-download"></i> Download processed file
+      </a>
+      {% endif %}
+    </div>
+
+    <script>
+      /* Show selected filename */
+      document.getElementById("file-input").addEventListener("change", (e) => {
+        const name = e.target.files[0]?.name || "Choose Excel file…";
+        document.getElementById("file-name").textContent = name;
+      });
+    </script>
   </body>
 </html>
