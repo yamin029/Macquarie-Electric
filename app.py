@@ -13,7 +13,7 @@ os.makedirs('output', exist_ok=True)
 @app.route('/', methods=['GET', 'POST'])
 def upload_file():
     if request.method == 'POST':
-        file = request.files['excel_file']
+        file = request.files.get('excel_file')
         if not file:
             return 'No file uploaded', 400
 
@@ -22,25 +22,24 @@ def upload_file():
 
         try:
             validate_excel(filepath)
-            df_transactions, df_customers, df_products = load_data(filepath)
+            df_t, df_c, df_p = load_data(filepath)
 
-            changes = detect_address_changes(df_customers)
-            summary = transaction_summary(df_transactions, df_products)
-            top = top_spenders(summary)
-            ranks = rank_customers(df_transactions)
+            changes = detect_address_changes(df_c)
+            summary = transaction_summary(df_t, df_p)
+            top     = top_spenders(summary)
+            ranks   = rank_customers(df_t)
 
-            df_customers = enrich_geolocation(df_customers)
+            df_c_geo = enrich_geolocation(df_c)
 
-            sheet_counts = {
-                'Transactions': len(df_transactions),
-                'Customers': len(df_customers),
-                'Products': len(df_products)
-            }
-            log_upload(file.filename, sheet_counts)
+            log_upload(file.filename, {
+                'Transactions': len(df_t),
+                'Customers':    len(df_c),
+                'Products':     len(df_p)
+            })
 
             excel_path = save_processed_output(
-                Transactions=df_transactions,
-                Customers=df_customers,
+                Transactions=df_t,
+                Customers=df_c_geo,
                 AddressChanges=changes,
                 Summary=summary,
                 TopSpenders=top,

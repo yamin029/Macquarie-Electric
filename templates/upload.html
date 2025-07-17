@@ -2,93 +2,209 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>Macquarie Electric – Upload</title>
-    <style>
-      body {
-        font-family: Inter, system-ui;
-        margin: 2rem;
-        background: #f4f7fa;
-        color: #222;
-      }
-      .card {
-        background: #fff;
-        padding: 2rem;
-        max-width: 480px;
-        margin: auto;
-        border-radius: 10px;
-        box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
-      }
-      .msg {
-        margin: 0.5rem 0;
-        padding: 0.6rem 1rem;
-        border-radius: 6px;
-        font-size: 0.9rem;
-      }
-      .info {
-        background: #e7f3ff;
-        color: #005a9c;
-      }
-      .success {
-        background: #e6f7ee;
-        color: #0f9d58;
-      }
-      .error {
-        background: #fce8e6;
-        color: #d93025;
-      }
-      #spinner {
-        display: none;
-        margin: 0.5rem 0;
-      }
-      .fa-spinner {
-        animation: spin 1s linear infinite;
-      }
-      @keyframes spin {
-        to {
-          transform: rotate(360deg);
-        }
-      }
-    </style>
+    <title>Macquarie Electric – Upload Data</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Google Font -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Font Awesome -->
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
     />
+
+    <style>
+      :root {
+        --brand: #005a9c;
+        --brand-light: #0078d4;
+        --success: #0f9d58;
+        --error: #d93025;
+        --info: #0078d4;
+        --bg: #f4f7fa;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: "Inter", sans-serif;
+        background: var(--bg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        color: #222;
+      }
+
+      .card {
+        background: #fff;
+        padding: 2.5rem 3rem;
+        border-radius: 12px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+        width: 100%;
+        max-width: 480px;
+        text-align: center;
+      }
+
+      .logo {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: var(--brand);
+        margin-bottom: 0.5rem;
+      }
+
+      h1 {
+        font-size: 1.75rem;
+        font-weight: 400;
+        margin-bottom: 1.5rem;
+      }
+
+      .msg-box {
+        margin-bottom: 1rem;
+        font-size: 0.9rem;
+      }
+
+      .msg {
+        padding: 0.75rem 1rem;
+        border-radius: 6px;
+        margin-bottom: 0.5rem;
+        animation: fadeIn 0.4s ease-in-out;
+      }
+
+      .msg.info {
+        background: #e7f3ff;
+        color: var(--info);
+      }
+      .msg.success {
+        background: #e6f7ee;
+        color: var(--success);
+      }
+      .msg.error {
+        background: #fce8e6;
+        color: var(--error);
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(-6px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* ✅ Hide default file input */
+      input[type="file"] {
+        display: none !important;
+      }
+
+      .upload-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+        border: 2px dashed var(--brand-light);
+        background: #fff;
+        padding: 1.25rem 2rem;
+        border-radius: 8px;
+        color: var(--brand-light);
+        transition: all 0.25s ease;
+        font-weight: 500;
+      }
+
+      .upload-label:hover {
+        border-color: var(--brand);
+        color: var(--brand);
+        background: #f0f8ff;
+      }
+
+      .upload-btn {
+        margin-top: 1.25rem;
+        padding: 0.75rem 2.25rem;
+        border: none;
+        border-radius: 6px;
+        background: var(--brand);
+        color: #fff;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: background 0.25s ease;
+      }
+
+      .upload-btn:hover:not(:disabled) {
+        background: var(--brand-light);
+      }
+
+      .upload-btn:disabled {
+        background: #aaa;
+        cursor: not-allowed;
+      }
+    </style>
   </head>
+
   <body>
     <div class="card">
-      <h1>Upload Excel</h1>
+      <div class="logo">Macquarie Electric</div>
+      <h1>Upload Customer Data</h1>
 
-      <div id="messages"></div>
-      <div id="spinner"><i class="fa-solid fa-spinner"></i> Processing…</div>
+      <div id="msg-box" class="msg-box"></div>
 
       <form id="upload-form" enctype="multipart/form-data">
-        <input type="file" name="excel_file" accept=".xlsx,.xls" required />
-        <button type="submit">Upload & Process</button>
+        <label for="file-input" class="upload-label">
+          <i class="fa-solid fa-cloud-arrow-up"></i>
+          <span id="file-name">Choose Excel file…</span>
+        </label>
+        <input
+          id="file-input"
+          type="file"
+          name="excel_file"
+          accept=".xlsx,.xls"
+          required
+        />
+
+        <button type="submit" class="upload-btn" id="submit-btn">
+          <i class="fa-solid fa-upload"></i> Upload & Process
+        </button>
       </form>
     </div>
 
     <script>
       const form = document.getElementById("upload-form");
-      const msgBox = document.getElementById("messages");
-      const spin = document.getElementById("spinner");
+      const msgBox = document.getElementById("msg-box");
+      const btn = document.getElementById("submit-btn");
 
-      function addMsg(text, cls = "info") {
+      function addMsg(txt, cls = "info") {
         const div = document.createElement("div");
-        div.className = "msg " + cls;
-        div.textContent = text;
+        div.className = `msg ${cls}`;
+        div.textContent = txt;
         msgBox.appendChild(div);
         div.scrollIntoView({ behavior: "smooth" });
       }
 
+      document.getElementById("file-input").addEventListener("change", (e) => {
+        document.getElementById("file-name").textContent =
+          e.target.files[0]?.name || "Choose Excel file…";
+      });
+
       form.addEventListener("submit", async (e) => {
         e.preventDefault();
         msgBox.innerHTML = "";
-        spin.style.display = "block";
+        btn.disabled = true;
 
+        addMsg("⏳ Uploading…", "info");
         const data = new FormData(form);
-        const res = await fetch("/", { method: "POST", body: data });
 
-        if (res.ok) {
+        try {
+          const res = await fetch("/", { method: "POST", body: data });
+          if (!res.ok) throw new Error(await res.text());
+
           const blob = await res.blob();
           const url = URL.createObjectURL(blob);
           const a = document.createElement("a");
@@ -96,12 +212,13 @@
           a.download = "processed.xlsx";
           a.click();
           URL.revokeObjectURL(url);
-          addMsg("🎉 File processed & download started!", "success");
-        } else {
-          const txt = await res.text();
-          addMsg("❌ " + txt, "error");
+
+          addMsg("✅ Done! File downloaded.", "success");
+        } catch (err) {
+          addMsg(`❌ ${err.message}`, "error");
+        } finally {
+          btn.disabled = false;
         }
-        spin.style.display = "none";
       });
     </script>
   </body>
