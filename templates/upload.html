@@ -1,15 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>Upload Excel File</title>
+    <title>Upload Excel</title>
+    <style>
+      .info {
+        color: blue;
+      }
+      .success {
+        color: green;
+      }
+      .error {
+        color: red;
+      }
+    </style>
   </head>
   <body>
     <h1>Upload Excel File</h1>
 
-    {% with messages = get_flashed_messages() %} {% if messages %}
-    <ul style="color: green">
-      {% for message in messages %}
-      <li>{{ message }}</li>
+    {% with messages = get_flashed_messages(with_categories=true) %} {% if
+    messages %}
+    <ul>
+      {% for category, message in messages %}
+      <li class="{{ category }}">{{ message }}</li>
       {% endfor %}
     </ul>
     {% endif %} {% endwith %}
